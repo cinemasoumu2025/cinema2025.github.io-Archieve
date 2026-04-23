@@ -1,191 +1,250 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>過去資料検索システム　ALCA</title>
-  <link rel="stylesheet" href="style.css">
-　<style>
-     body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background: #f5f5f5;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>ログイン</title>
+
+<style>
+
+:root{
+  --black:#0f0f12;
+  --gold:#c6a85a;
+  --gold-light:#e7d7a3;
 }
 
-.container {
-  width: 400px;
-  margin: 50px auto;
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:"Yu Mincho",serif;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  height:100vh;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.container{
+  width:380px;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-sizing: border-box;
+.card{
+  background:#1d1d22;
+  padding:30px;
+  border-radius:16px;
+  margin-bottom:20px;
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
+h1,h2{
+  text-align:center;
 }
 
-button:hover {
-  opacity: 0.9;
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  box-sizing:border-box;
+  border:none;
+  border-radius:8px;
 }
 
-.hidden {
-  display: none;
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+
+  border:none;
+  border-radius:999px;
+
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+
+  cursor:pointer;
+  font-weight:bold;
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
 
-.modal-content {
-  background: white;
+.modal.active{
+  display:flex;
 }
-  </style>
+
+.modal-content{
+  background:white;
+  color:black;
+
+  padding:30px;
+  width:300px;
+
+  border-radius:12px;
+  text-align:center;
+}
+
+</style>
 </head>
+
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1 id="welcomeText">ログイン画面</h1>
+  <h1>資料室ログイン</h1>
 
-    <div class="card">
-      <h2>部員ログイン</h2>
+  <div class="card">
 
-      <input
-        type="text"
-        id="userId"
-        placeholder="ID"
-      >
+    <h2>部員ログイン</h2>
 
-      <input
-        type="password"
-        id="password"
-        placeholder="パスワード"
-      >
+    <input type="text" id="userId" placeholder="ID">
 
-      <button onclick="login()">
-        ログイン
-      </button>
-    </div>
+    <input type="password" id="password" placeholder="パスワード">
 
-    <div class="card">
-      <h2>ゲスト入室</h2>
+    <button onclick="login()">
+      ログイン
+    </button>
 
-      <input
-        type="text"
-        id="guestName"
-        placeholder="名前を入力"
-      >
+  </div>
 
-      <button onclick="guestEnter()">
-        入室
-      </button>
-    </div>
+  <div class="card">
 
-    <div
-      id="searchScreen"
-      class="hidden"
-    >
-      <h2>検索画面</h2>
+    <h2>ゲスト入室</h2>
 
-      <input
-        type="text"
-        placeholder="検索ワード"
-      >
-    </div>
-  <script>
-      const GAS_URL = 'https://script.google.com/macros/s/AKfycbzEbavX2dFoLvB1lvMk-yDT-5dX3kVslc9ESDO4axnj_wnnSLyXMymd8uvNtQUBep22Kg/exec';
+    <input type="text" id="guestName" placeholder="名前">
 
-async function login() {
+    <button onclick="guestLogin()">
+      入室
+    </button>
 
-  const userId = document.getElementById('userId').value;
-  const password = document.getElementById('password').value;
+  </div>
 
-  try {
+</div>
 
-    const response = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        action: 'login',
+
+<div id="modal" class="modal">
+
+  <div class="modal-content">
+
+    <h3>エラー</h3>
+
+    <p id="modalMessage"></p>
+
+    <button onclick="closeModal()">
+      OK
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const GAS_URL =
+"https://script.google.com/macros/s/XXXXXXXXXXXX/exec";
+
+
+async function login(){
+
+  const userId =
+    document.getElementById("userId").value.trim();
+
+  const password =
+    document.getElementById("password").value.trim();
+
+  try{
+
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"login",
         userId,
         password
       })
     });
 
-    const result = await response.json();
+    const result = await res.json();
 
-    if (!result.success) {
-      showError(result.message);
+    if(!result.success){
+
+      showError(
+        "IDまたはパスワードを入力してください"
+      );
+
       return;
     }
 
-    const user = result.user;
+    sessionStorage.setItem(
+      "loginData",
+      JSON.stringify(result.user)
+    );
 
-    document.getElementById('welcomeText').innerText =
-      `ようこそ ${user.name} さん（${user.roleName}）`;
+    window.location.href = "search.html";
 
-    document.getElementById('searchScreen').classList.remove('hidden');
+  }catch(e){
 
-  } catch (error) {
-    showError('通信エラー');
+    showError("通信エラー");
+
   }
+
 }
 
-function guestEnter() {
 
-  const guestName = document.getElementById('guestName').value.trim();
 
-  if (!guestName) {
-    showError('名前を入力してください');
+function guestLogin(){
+
+  const name =
+    document.getElementById("guestName").value.trim();
+
+  if(!name){
+
+    showError("名前を入力してください");
+
     return;
   }
 
-  document.getElementById('welcomeText').innerText =
-    `ようこそ ${guestName} さん（ゲスト）`;
+  sessionStorage.setItem(
+    "loginData",
+    JSON.stringify({
+      id:"guest",
+      name:name,
+      level:5,
+      roleName:"ゲスト",
+      logRow:null
+    })
+  );
 
-  document.getElementById('searchScreen').classList.remove('hidden');
+  window.location.href = "search.html";
+
 }
 
-function showError(message) {
 
-  document.getElementById('modalMessage').innerText = message;
 
-  document.getElementById('modal').classList.remove('hidden');
+function showError(msg){
+
+  document.getElementById("modalMessage")
+    .innerText = msg;
+
+  document.getElementById("modal")
+    .classList.add("active");
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.add('hidden');
+function closeModal(){
+
+  document.getElementById("modal")
+    .classList.remove("active");
+
 }
-  </script>
-      
+
+</script>
+
+</body>
 </html>
