@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+    </div>
+
+
+    <div id="searchArea">
+      <div class="search-box">
+        <h2>検索画面</h2>
+
+        <input type="text" placeholder="検索ワードを入力">
+
+        <button>検索</button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+
+    function memberLogin() {
+      const userId = document.getElementById('userId').value;
+      const password = document.getElementById('password').value;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+
+          if (!response.success) {
+            alert(response.message);
+            return;
+          }
+
+          showSearchScreen(response.message);
+
+        })
+        .login(userId, password);
+    }
+
+
+    function guestEnter() {
+      const name = document.getElementById('guestName').value;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+
+          if (!response.success) {
+            alert(response.message);
+            return;
+          }
+
+          showSearchScreen(response.message);
+
+        })
+        .guestLogin(name);
+    }
+
+
+    function showSearchScreen(message) {
+      document.getElementById('welcomeArea').style.display = 'block';
+      document.getElementById('welcomeArea').innerText = message;
+
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('searchArea').style.display = 'block';
+    }
+
+  </script>
+
+</body>
+</html>
