@@ -60,7 +60,11 @@ button{
   border:none;
   border-radius:999px;
 
-  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  background:linear-gradient(
+    135deg,
+    var(--gold),
+    var(--gold-light)
+  );
 
   cursor:pointer;
   font-weight:bold;
@@ -69,9 +73,11 @@ button{
 .modal{
   position:fixed;
   inset:0;
+
   background:rgba(0,0,0,.7);
 
   display:none;
+
   justify-content:center;
   align-items:center;
 }
@@ -85,9 +91,11 @@ button{
   color:black;
 
   padding:30px;
+
   width:300px;
 
   border-radius:12px;
+
   text-align:center;
 }
 
@@ -104,9 +112,19 @@ button{
 
     <h2>部員ログイン</h2>
 
-    <input type="text" id="userId" placeholder="ID">
+    <input
+      type="text"
+      id="userId"
+      name="userId"
+      placeholder="ID"
+    >
 
-    <input type="password" id="password" placeholder="パスワード">
+    <input
+      type="password"
+      id="password"
+      name="password"
+      placeholder="パスワード"
+    >
 
     <button onclick="login()">
       ログイン
@@ -114,11 +132,17 @@ button{
 
   </div>
 
+
   <div class="card">
 
     <h2>ゲスト入室</h2>
 
-    <input type="text" id="guestName" placeholder="名前">
+    <input
+      type="text"
+      id="guestName"
+      name="guestName"
+      placeholder="名前"
+    >
 
     <button onclick="guestLogin()">
       入室
@@ -127,6 +151,7 @@ button{
   </div>
 
 </div>
+
 
 
 <div id="modal" class="modal">
@@ -146,50 +171,98 @@ button{
 </div>
 
 
+
 <script>
 
 const GAS_URL =
 "https://script.google.com/macros/s/AKfycbwE0-VhWoIVY4h-N6zI_5HMd-rf1lR2gjzeWv13w5zuZXMBFqPBY5WjCJGg5zOtrzjiWA/exec";
 
 
+
+/* =================================
+   部員ログイン
+================================= */
+
 async function login(){
 
   const userId =
-    document.getElementById("userId").value.trim();
+    document
+      .getElementById("userId")
+      .value
+      .trim();
 
   const password =
-    document.getElementById("password").value.trim();
+    document
+      .getElementById("password")
+      .value
+      .trim();
+
 
   try{
 
-    const res = await fetch(GAS_URL,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"login",
-        userId,
-        password
-      })
-    });
+    const res = await fetch(
 
-    const result = await res.json();
+      GAS_URL,
+
+      {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+        body:JSON.stringify({
+
+          action:"login",
+
+          userId:userId,
+
+          password:password
+
+        })
+
+      }
+
+    );
+
+
+    const result =
+      await res.json();
+
 
     if(!result.success){
 
       showError(
+
+        result.message ||
+
         "IDまたはパスワードを入力してください"
+
       );
 
       return;
+
     }
 
+
     sessionStorage.setItem(
+
       "loginData",
+
       JSON.stringify(result.user)
+
     );
 
-    window.location.href = "search.html";
 
-  }catch(e){
+    window.location.href =
+      "search.html";
+
+
+  }catch(error){
+
+    console.error(error);
 
     showError("通信エラー");
 
@@ -199,48 +272,125 @@ async function login(){
 
 
 
-function guestLogin(){
+/* =================================
+   ゲストログイン
+================================= */
+
+async function guestLogin(){
 
   const name =
-    document.getElementById("guestName").value.trim();
+
+    document
+      .getElementById("guestName")
+      .value
+      .trim();
+
 
   if(!name){
 
-    showError("名前を入力してください");
+    showError(
+      "名前を入力してください"
+    );
 
     return;
+
   }
 
-  sessionStorage.setItem(
-    "loginData",
-    JSON.stringify({
-      id:"guest",
-      name:name,
-      level:5,
-      roleName:"ゲスト",
-      logRow:null
-    })
-  );
 
-  window.location.href = "search.html";
+  try{
+
+    const res = await fetch(
+
+      GAS_URL,
+
+      {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+        body:JSON.stringify({
+
+          action:"guestLogin",
+
+          name:name
+
+        })
+
+      }
+
+    );
+
+
+    const result =
+      await res.json();
+
+
+    if(!result.success){
+
+      showError(
+        result.message
+      );
+
+      return;
+
+    }
+
+
+    sessionStorage.setItem(
+
+      "loginData",
+
+      JSON.stringify(result.user)
+
+    );
+
+
+    window.location.href =
+      "search.html";
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showError("通信エラー");
+
+  }
 
 }
 
 
+
+/* =================================
+   モーダル
+================================= */
 
 function showError(msg){
 
-  document.getElementById("modalMessage")
+  document
+    .getElementById("modalMessage")
     .innerText = msg;
 
-  document.getElementById("modal")
-    .classList.add("active");
+
+  document
+    .getElementById("modal")
+    .classList
+    .add("active");
+
 }
+
+
 
 function closeModal(){
 
-  document.getElementById("modal")
-    .classList.remove("active");
+  document
+    .getElementById("modal")
+    .classList
+    .remove("active");
 
 }
 
