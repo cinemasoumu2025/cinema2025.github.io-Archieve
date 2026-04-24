@@ -151,6 +151,44 @@ button{
 
 }
 
+  /* CSS に追加 */
+
+.loading-overlay{
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(0,0,0,.85);
+
+  display:none;
+
+  justify-content:center;
+
+  align-items:center;
+
+  z-index:9999;
+
+}
+
+
+.loading-overlay.active{
+
+  display:flex;
+
+}
+
+
+.loading-text{
+
+  color:white;
+
+  font-size:28px;
+
+  letter-spacing:4px;
+
+}
+
 </style>
 </head>
 
@@ -235,6 +273,19 @@ button{
 
   </div>
 
+  <!-- body の一番下に追加 -->
+
+<div id="loadingOverlay" class="loading-overlay">
+
+  <div
+    id="loadingText"
+    class="loading-text"
+  >
+    入室中
+  </div>
+
+</div>
+
 </div>
 
 
@@ -244,7 +295,78 @@ button{
 const GAS_URL =
 "https://script.google.com/macros/s/AKfycbyxjNWJtVtOUS_rdI66nj5TMWWUXszbctnLgKYw_YaHZpbjeQ_R_ctQbZMRUMqokaaosw/exec";
 
+/* =================================
+ログインボタンを押した後の操作
+==================================*/
+ 
 
+let loadingInterval = null;
+
+
+
+function showLoading(){
+
+  const overlay =
+
+    document.getElementById(
+      "loadingOverlay"
+    );
+
+
+  const text =
+
+    document.getElementById(
+      "loadingText"
+    );
+
+
+  overlay.classList.add(
+    "active"
+  );
+
+
+  let dots = 0;
+
+
+  text.innerText =
+    "入室中";
+
+
+  loadingInterval = setInterval(()=>{
+
+    dots++;
+
+    if(dots > 3){
+      dots = 0;
+    }
+
+    text.innerText =
+
+      "入室中" +
+
+      ".".repeat(dots);
+
+  },500);
+
+}
+
+
+
+function hideLoading(){
+
+  document
+    .getElementById(
+      "loadingOverlay"
+    )
+    .classList
+    .remove("active");
+
+
+  clearInterval(
+    loadingInterval
+  );
+
+}
 
 /* =================================
    部員ログイン
@@ -253,16 +375,22 @@ const GAS_URL =
 async function login(){
 
   const userId =
+
     document
       .getElementById("userId")
       .value
       .trim();
 
+
   const password =
+
     document
       .getElementById("password")
       .value
       .trim();
+
+
+  showLoading();
 
 
   try{
@@ -301,11 +429,13 @@ async function login(){
 
     if(!result.success){
 
+      hideLoading();
+
       showError(
 
         result.message ||
 
-        "IDまたはパスワードを入力してください"
+        "ログイン失敗"
 
       );
 
@@ -318,7 +448,9 @@ async function login(){
 
       "loginData",
 
-      JSON.stringify(result.user)
+      JSON.stringify(
+        result.user
+      )
 
     );
 
@@ -331,7 +463,11 @@ async function login(){
 
     console.error(error);
 
-    showError("通信エラー");
+    hideLoading();
+
+    showError(
+      "通信エラー"
+    );
 
   }
 
